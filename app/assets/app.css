@@ -36,3 +36,7 @@ SOFTWARE. */
     font-size: 12px;
     font-weight: normal;
 }
+
+strong {
+    font-weight: bold;
+}
