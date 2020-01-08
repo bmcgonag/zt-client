@@ -12,10 +12,35 @@
   </head>
   <body>
     <div>
-      <label for="collapsible-1">Network Name: <a href="#" id="networkName"></a></label></strong>
-      <div>
-        <span>IP Ranges</span>
-        <span class="networkIPRanges" id="networkIPRanges"></span>
+      <div id="networkInfo">
+        <div v-for="networkName in networkNames">
+          <div class="row">
+            <div class="column">
+              Network Name:
+            </div>
+            <div class="column" :data-id="networkName.id">
+              <strong>{{ networkName.name }}</strong>
+            </div>
+            <div class="column">
+              {{ networkName.id }}
+            </div>
+            <div class="column">
+              <button v-on:click="pullDeviceInfo(networkName.id)">See Devices</button>
+            </div>
+          </div>
+        </div>
+        <div id="networkIpRange">
+          <span v-for="networkIpRange in networkIpRanges">
+            <div class="row">
+              <div class="column">
+                IP Ranges:
+              </div>
+              <div class="column">
+                <strong>{{ networkIpRange }}</strong>
+              </div>
+            </div>
+          </span>
+        </div>
         <div class="devices" id="devices">
           <table>
             <thead>
@@ -31,16 +56,22 @@
                 </th>
               </tr>
               </thead>
-              <tbody>
-                
+              <tbody v-for="device in devices">
+                <tr>
+                  <td>{{device.name}}</td>
+                  <td>{{device.ipAdd}}</td>
+                  <td>{{device.status}}</td>
+                </tr>
               </tbody>
           </table>
         </div>
       </div>
     </div>
     <script src="/neutralino.js"></script>
+    <!-- <script type="text/javascript" src="/assets/vue.js"></script> -->
     <script src="/assets/config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="/assets/app.js"></script>
-    <script src="/assets/vue.js"></script>
+    
   </body>
 </html>

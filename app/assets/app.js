@@ -4,58 +4,81 @@ let myapp = {
 		}
 };
 
-
-var	getNetworks = function() {
-	console.log("****    Inside the getNetworks function.");
-	let token = configs.apiKey;
-	Neutralino.os.runCommand('curl -H "Authorization: bearer ' + token + '" -X GET https://my.zerotier.com/api/network',
-		function(data) {
-			let info = JSON.parse(data.stdout);
-			let mainNetworkLength = info.length;
-			for (i=0; i < mainNetworkLength; i++) {
-				let ipRangeLength = info[i].config.ipAssignmentPools.length;
-				document.getElementById('networkName').innerHTML = "<span id='" + info[i].id + "'>" + info[i].config.name + "</span>";
-				for (j=0; j < ipRangeLength; j++) {
-					document.getElementById('networkIPRanges').innerHTML = info[i].config.ipAssignmentPools[j].ipRangeStart + " to " + info[i].config.ipAssignmentPools[j].ipRangeEnd + "<br />";
-				}
-			}
+var getNetworks = function() {
+	const networkInfo = new Vue({
+		el: '#networkInfo',
+		mounted: function() {
+			this.getNetwork()
 		},
-		function() {
-			console.error(error);
+		data: {
+			networkNames: [],
+			networkIds: [],
+			networkIpRanges: [],
+			devices: []
+		}, 
+		methods: {
+			getNetwork: function() {
+				let networkIds = this.networkIds;
+				let networkIpRanges = this.networkIpRanges;
+				let networkNames = this.networkNames;
+				let token = configs.apiKey;
+				Neutralino.os.runCommand('curl -H "Authorization: bearer ' + token + '" -X GET https://my.zerotier.com/api/network',
+					function(data) {
+						let info = JSON.parse(data.stdout);
+						let mainNetworkLength = info.length;
+						for (i=0; i < mainNetworkLength; i++) {
+							ipRangeLength = info[i].config.ipAssignmentPools.length;
+							networkIds.push(info[i].id);
+							networkNames.push({name: info[i].config.name, id: info[i].id});
+							for (j=0; j < ipRangeLength; j++) {
+								networkIpRanges.push(info[i].config.ipAssignmentPools[j].ipRangeStart + " to " + info[i].config.ipAssignmentPools[j].ipRangeEnd);
+							}
+						}
+					},
+					function() {
+						console.error(error);
+					}
+				);
+			},
+			getDevices: function(netId) {
+				console.log("Button clicked for id: " + netId);
+				let token = configs.apiKey;
+				let devices = this.devices;
+				Neutralino.os.runCommand('curl -H "Authorization: bearer ' + token + '" -X GET https://my.zerotier.com/api/network/' + netId + '/member',
+					function(data) {
+						let info = JSON.parse(data.stdout);
+						for (i=0; i<info.length; i++) {
+							
+							if (info[i].online == true) { 
+								thisOnline = "Online";
+							} else {
+								thisOnline = "Offline";
+							}
+							devices.push({name: info[i].name, ipAdd: info[i].config.ipAssignments[0], status: thisOnline})
+							// document.getElementsByTagName('tbody')[0].innerHTML += "<tr><td> " + info[i].name + " </td><td> " + info[i].config.ipAssignments[0] + " </td><td> " + thisOnline + " </td></tr>";
+						}
+					},
+					function() {
+						console.error(error);
+					}
+				);
+			},
+			pullDeviceInfo: function(netId) {
+				this.getDevices(netId);
+
+				setInterval(function() {
+					this.devices = [];
+					this.getDevices(netId);
+				}.bind(this), 20000);
+			}
 		}
-	);
+	});
 }
+
 
 var	getUsers = function() {
 	
 	
-}
-
-document.getElementById("networkName").onclick = function() {
-	let token = configs.apiKey;
-	console.log("event.target: ");
-	console.dir(event.target.id);
-	let netId = event.target.id;
-	document.getElementsByTagName('tbody')[0].innerHTML = "";
-	Neutralino.os.runCommand('curl -H "Authorization: bearer ' + token + '" -X GET https://my.zerotier.com/api/network/' + netId + '/member',
-		function(data) {
-			let info = JSON.parse(data.stdout);
-			for (i=0; i<info.length; i++) {
-				// console.log("Device Name:   " + info[i].name);
-				// console.log("Device Online: " + info[i].online);
-				// console.log("-------------------------------");
-				if (info[i].online == true) { 
-					thisOnline = "Online";
-				} else {
-					thisOnline = "Offline";
-				}
-				document.getElementsByTagName('tbody')[0].innerHTML += "<tr><td> " + info[i].name + " </td><td> " + info[i].config.ipAssignments[0] + " </td><td> " + thisOnline + " </td></tr>";
-			}
-		},
-		function() {
-			console.error(error);
-		}
-	);
 }
 
 Neutralino.init({
