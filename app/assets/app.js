@@ -8,7 +8,7 @@ var getNetworks = function() {
 	const networkInfo = new Vue({
 		el: '#networkInfo',
 		mounted: function() {
-			this.getNetwork()
+			this.getNetwork();
 		},
 		data: {
 			networkNames: [],
@@ -54,7 +54,7 @@ var getNetworks = function() {
 							} else {
 								thisOnline = "Offline";
 							}
-							devices.push({name: info[i].name, ipAdd: info[i].config.ipAssignments[0], status: thisOnline})
+							devices.push({name: info[i].name, ipAdd: info[i].config.ipAssignments[0], status: thisOnline, online: info[i].online})
 							// document.getElementsByTagName('tbody')[0].innerHTML += "<tr><td> " + info[i].name + " </td><td> " + info[i].config.ipAssignments[0] + " </td><td> " + thisOnline + " </td></tr>";
 						}
 					},
@@ -71,7 +71,7 @@ var getNetworks = function() {
 					this.getDevices(netId);
 				}.bind(this), 20000);
 			}
-		}
+		},
 	});
 }
 

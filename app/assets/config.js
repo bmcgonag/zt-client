@@ -1,3 +1,3 @@
 var configs = {
-    apiKey: "your-api-key-here"
+    apiKey: "Your-api-token-here"
 }
